@@ -58,7 +58,7 @@ The below command will store the configuration on a S3 bucket
 
  kops update cluster --name kubevpro.dev-keleza.site --state=s3://vprofile-kops-sate --yes --admin
 
- kops validate cluster --state=s3://vprofile-kops-sate
+ kops validate cluster --state=s3://vprofile-kops-sate - check cluster health
 
  kops delete cluster --name=kubevpro.dev-keleza.site --state=s3://vprofile-kops-sate --yes  - to delete the cluster
 
