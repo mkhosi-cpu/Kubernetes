@@ -1,8 +1,16 @@
-# Kops
+# Kops for a Cluster on AWS
 
-Kops for a Cluster on AWS
+# Setup with Kops
 
-# Pre requites
+# Prerequisites
+
+- Domain for Kubernetes DNS records
+- Create a linux VM and setup 
+  - kops , kubectl , ssh keys , awscli
+- Login to AWS account and setup 
+  - s3 bucket ,IAM user for awscli , Route53 Hosted Zone
+
+
 
 # Log onto AWS ec2 instance using git bash
 
@@ -47,5 +55,5 @@ The below command will store the configuration on a S3 bucket
 
  kops validate cluster --state=s3://vprofile-kops-sate
 
- kops validate cluster --name kubevpro.dev-keleza.site --state=s3://vprofile-kops-sate --yes  - to delete the cluster
+ kops delete cluster --name=kubevpro.dev-keleza.site --state=s3://vprofile-kops-sate --yes  - to delete the cluster
 
