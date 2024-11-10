@@ -1,28 +1,28 @@
-# k8s/deployment-test.yaml
+# deployment-test.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sample-app
+  name: wbo-app
   namespace: test
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: sample-app
+      app: wbo-app
   template:
     metadata:
       labels:
-        app: sample-app
+        app: wbo-app
     spec:
       containers:
-      - name: sample-app
-        image: nginx:latest
+      - name: wbo-app
+        image: lovasoa/wbo
         ports:
         - containerPort: 80
         resources:
           requests:
-            memory: "128Mi"
+            memory: "64Mi"
             cpu: "250m"
           limits:
-            memory: "256Mi"
+            memory: "128Mi"
             cpu: "500m"
