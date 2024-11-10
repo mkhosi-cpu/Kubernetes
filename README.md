@@ -11,6 +11,7 @@
   - s3 bucket ,IAM user for awscli , Route53 Hosted Zone
 
 Login to Domain Registrar
+
 Create NS records for subdomain pointing to Route53 hosted zone NS servers
 ![alt text](image.png)
 
