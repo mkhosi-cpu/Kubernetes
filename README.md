@@ -1,31 +1,30 @@
-# Kubernetes
-EKS cluster with test and production environments to host an application.
-All the below steps to be executed inside an EC2 instance
+# Kops for a Cluster on AWS
 
-Launch an EC2 instance and begin the prerequisites
+# Setup with Kops
 
-# Prerequisites Installation on a EC2 instance
+# Prerequisites
 
-# Install AWS CLI
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+- Domain for Kubernetes DNS records
+- Create a linux VM and setup 
+  - kops , kubectl , ssh keys , awscli
+- Login to AWS account and setup 
+  - s3 bucket ,IAM user for awscli , Route53 Hosted Zone
 
-unzip awscliv2.zip
+Login to Domain Registrar
 
-sudo ./aws/install
+Create NS records for subdomain pointing to Route53 hosted zone NS servers
+![alt text](image.png)
 
-# Install kubectl
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 
-sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
-# Install Terraform
-wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+# Log onto AWS ec2 instance using git bash
 
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+ssh -i /path/key-pair-name.pem instance-user-name@instance-public-dns-name
 
-sudo apt update && sudo apt install terraform
+# Configure ec2 instance
 
-# Configure AWS Credentials
+Install awscli 
+sudo apt update && sudo apt install awscli -y
 
 aws configure
 - Enter your AWS Access Key ID
@@ -33,83 +32,33 @@ aws configure
 - Enter default region (e.g., us-west-2)
 - Enter output format (json)
 
-# Create EKS Cluster using Terraform
+# Install Kubectl
 
-# Initialize Terraform
-terraform init
+  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 
-# Review the plan
-terraform plan
+  chmod +x kubectl
 
-# Apply the configuration
-terraform apply
+  sudo mv kubectl /usr/local/bin/
 
-# Configure kubectl for EKS
-aws eks update-kubeconfig --region us-east-1 --name KelezaIT
+#  Install Kops
 
-# Deploy the Applications
+wget https://github.com/kubernetes/kops/releases/download/v1.26.4/kops-linux-amd64
 
-# Create namespaces
-kubectl apply -f namespaces.yaml
+chmod +x kops-linux-amd64
 
-# Deploy test environment
-kubectl apply -f deployment-test.yaml
+sudo mv kops-linux-amd64 /usr/local/bin/kops
 
-kubectl apply -f service-test.yaml
+# Create cluster using kops
 
-# Deploy production environment
-kubectl apply -f deployment-prod.yaml
+The below command will store the configuration on a S3 bucket
 
-kubectl apply -f service-prod.yaml
+ kops create cluster --name=kubevpro.dev-keleza.site --state=s3://vprofile-kops-sate --zones=us-east-1a,us-east-1b --node-count=2 --node-size=t3.small --master-size=t3.medium --dns-zone=kubevpro.dev-keleza.site --node-volume-size=8 --master-volume-size=8
 
-# Verify Deployments
+ - Provision the cluster with the below command
 
-# Check test namespace
-kubectl get pods -n test
+ kops update cluster --name kubevpro.dev-keleza.site --state=s3://vprofile-kops-sate --yes --admin
 
-kubectl get services -n test
+ kops validate cluster --state=s3://vprofile-kops-sate - check cluster health
 
-# Check production namespace
-kubectl get pods -n production
-
-kubectl get services -n production
-
-# Access the Applications
-
-# Get the Load Balancer URLs
-TEST_URL=$(kubectl get svc sample-app-service -n test -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-
-PROD_URL=$(kubectl get svc sample-app-service -n production -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-
-# Test the applications
-curl http://$TEST_URL
-
-curl http://$PROD_URL
-
-Key differences between test and production environments:
-
-Test environment runs 1 replica, production runs 3
-Production has higher resource limits
-Both environments use AWS Load Balancers for access
-
-# To clean up and avoid unnecessary costs:
-
-# Delete Kubernetes resources
-kubectl delete namespace test
-kubectl delete namespace production
-
-# Destroy EKS cluster and associated resources
-terraform destroy
-
-# Important notes:
-
-The sample configuration uses t3.medium instances. Adjust based on your needs
-The VPC is created with public and private subnets in two availability zones
-Replace the nginx image with your application image
-Consider adding:
-
-AWS Load Balancer Controller for better integration
-External DNS for automatic DNS management
-Cluster Autoscaler for automatic scaling
-AWS Certificate Manager for SSL/TLS
+ kops delete cluster --name=kubevpro.dev-keleza.site --state=s3://vprofile-kops-sate --yes  - to delete the cluster
 
