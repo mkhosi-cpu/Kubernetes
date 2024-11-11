@@ -1,0 +1,28 @@
+# deployment-prod.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wbo-app
+  namespace: production
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: wbo-app
+  template:
+    metadata:
+      labels:
+        app: wbo-app
+    spec:
+      containers:
+      - name: wbo-app
+        image: lovasoa/wbo
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "500m"
+          limits:
+            memory: "256Mi"
+            cpu: "1000m"
