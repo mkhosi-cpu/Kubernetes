@@ -1,9 +1,7 @@
-# deployment-test.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: wbo-app
-  namespace: test
 spec:
   replicas: 1
   selector:
