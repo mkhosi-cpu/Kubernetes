@@ -4,10 +4,10 @@ metadata:
   name: wbo-app-service
   namespace: test
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: wbo-app
   ports:
   - port: 80
-    targetPort: 80
-    nodePort: 30001
+    targetPort: 8000
+    
