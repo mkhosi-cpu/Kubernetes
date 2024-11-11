@@ -16,7 +16,7 @@ spec:
       - name: wbo-app
         image: lovasoa/wbo
         ports:
-        - containerPort: 80
+        - containerPort: 8000
         resources:
           requests:
             memory: "64Mi"
